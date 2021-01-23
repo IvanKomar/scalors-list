@@ -129,7 +129,7 @@ export default function ListComponent({ projects }: ListProps) {
           project={projectInfo}
           open={isModalOpen}
           handleClose={handleCloseModal}
-          title={"modal"}
+          title={`Changing of project: ${projectInfo.title}`}
           handleConfirm={handleConfirModal}
         />
       )}

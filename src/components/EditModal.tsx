@@ -1,5 +1,14 @@
-import React, { ChangeEvent, useState } from "react";
-import {Button, Box, TextField, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from "@material-ui/core";
+import React, { ChangeEvent, useEffect, useState } from "react";
+import {
+  Button,
+  Box,
+  TextField,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from "@material-ui/core";
 
 import { ProjectWithProperData } from "../types";
 
@@ -21,22 +30,32 @@ const FormDialog: React.FC<FormDialogProps> = ({
   project,
 }) => {
   const [projectTitle, setProjectTitle] = useState(project.title);
-  const [projectUsers, setProjectUsers] = useState(project.users)
-  const [projectDevices, setProjectDevices] = useState(project.devices)
+  const [projectUsers, setProjectUsers] = useState(project.users);
+  const [projectDevices, setProjectDevices] = useState(project.devices);
+  useEffect(() => {
+    setProjectUsers(project.users);
+    setProjectDevices(project.devices);
+    setProjectTitle(project.title);
+  }, [project]);
 
   const displayUsersFields = projectUsers.map((user, idx) => (
-    <Box key={idx+user.appuserId}>
+    <Box key={idx + user.appuserId}>
       <TextField
         defaultValue={user.firstName}
         type="text"
         margin="dense"
         id={`${idx}First name`}
         label="First name"
-        onChange={(e: ChangeEvent<HTMLInputElement>) => {
-          const userWithChanges = {...user, firstName: e.target.value}
-          projectUsers.splice(idx,1, userWithChanges)
-          setProjectUsers(projectUsers)
-        }}
+        onChange={
+          (e: ChangeEvent<HTMLInputElement>) => {
+          const userWithChanges = { ...user, firstName: e.target.value };
+          const changedUsers = projectUsers.map(changedUser => {
+            if (changedUser.appuserId === userWithChanges.appuserId) return userWithChanges
+            return changedUser
+          })
+          setProjectUsers(changedUsers);
+        }
+      }
       />
       <TextField
         type="text"
@@ -45,16 +64,19 @@ const FormDialog: React.FC<FormDialogProps> = ({
         id={`${idx}Last name`}
         label="Last name"
         onChange={(e: ChangeEvent<HTMLInputElement>) => {
-          const userWithChanges = {...user, lastName: e.target.value}
-          projectUsers.splice(idx,1, userWithChanges)
-          setProjectUsers(projectUsers)
+          const userWithChanges = { ...user, lastName: e.target.value };
+          const changedUsers = projectUsers.map(changedUser => {
+            if (changedUser.appuserId === userWithChanges.appuserId) return userWithChanges
+            return changedUser
+          })
+          setProjectUsers(changedUsers);
         }}
       />
     </Box>
-  ))
+  ));
 
   const displayDevicesFileds = projectDevices.map((device, idx) => (
-    <Box key={idx+device.serialNumber}>
+    <Box key={idx + device.serialNumber}>
       <TextField
         type="text"
         margin="dense"
@@ -62,13 +84,13 @@ const FormDialog: React.FC<FormDialogProps> = ({
         label="Serial number"
         defaultValue={device.serialNumber}
         onChange={(e: ChangeEvent<HTMLInputElement>) => {
-          const deviceWithChanges = {...device, serialNumber: e.target.value}
-          projectDevices.splice(idx,1, deviceWithChanges)
-          setProjectDevices(projectDevices)
+          const deviceWithChanges = { ...device, serialNumber: e.target.value };
+          projectDevices.splice(idx, 1, deviceWithChanges);
+          setProjectDevices(projectDevices);
         }}
       />
     </Box>
-  ))
+  ));
 
   return (
     <Dialog
@@ -97,7 +119,17 @@ const FormDialog: React.FC<FormDialogProps> = ({
         <Button onClick={handleClose} color="primary">
           Cancel
         </Button>
-        <Button onClick={() => handleConfirm({...project, users: projectUsers, devices: projectDevices, title: projectTitle})} color="primary">
+        <Button
+          onClick={() =>
+            handleConfirm({
+              ...project,
+              users: projectUsers,
+              devices: projectDevices,
+              title: projectTitle,
+            })
+          }
+          color="primary"
+        >
           Save
         </Button>
       </DialogActions>
