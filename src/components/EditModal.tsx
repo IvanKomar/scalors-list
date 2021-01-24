@@ -48,7 +48,6 @@ const FormDialog: React.FC<FormDialogProps> = ({
   }
 
   const devicesFieldsHandler = (e: ChangeEvent<HTMLInputElement>, device: SingleDevice, key: keyof SingleDevice) => {
-
       const deviceWithChanges = { ...device, [key]: e.target.value };
       const changedDevices = projectDevices.map(changedDevice => {
         if (deviceWithChanges.deviceId === changedDevice.deviceId) return deviceWithChanges
@@ -81,7 +80,7 @@ const FormDialog: React.FC<FormDialogProps> = ({
   ));
 
   const displayDevicesFileds = projectDevices.map((device, idx) => (
-    <Box key={idx + device.serialNumber}>
+    <Box key={idx + device.deviceId}>
       <TextField
         type="text"
         margin="dense"
