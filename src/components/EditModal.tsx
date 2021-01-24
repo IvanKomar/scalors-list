@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@material-ui/core";
 
-import { ProjectWithProperData } from "../types";
+import { ProjectWithProperData, SingleDevice, SingleUser } from "../types";
 
 type FormDialogProps = {
   open: boolean;
@@ -38,6 +38,27 @@ const FormDialog: React.FC<FormDialogProps> = ({
     setProjectTitle(project.title);
   }, [project]);
 
+  const userFieldsHandler = (e: ChangeEvent<HTMLInputElement>, user: SingleUser, key: keyof SingleUser) => {
+    const userWithChanges = { ...user, [key]: e.target.value };
+    const changedUsers = projectUsers.map(changedUser => {
+      if (changedUser.appuserId === userWithChanges.appuserId) return userWithChanges
+      return changedUser
+    })
+    setProjectUsers(changedUsers);
+  }
+
+  const devicesFieldsHandler = (e: ChangeEvent<HTMLInputElement>, device: SingleDevice, key: keyof SingleDevice) => {
+
+      const deviceWithChanges = { ...device, [key]: e.target.value };
+      const changedDevices = projectDevices.map(changedDevice => {
+        if (deviceWithChanges.deviceId === changedDevice.deviceId) return deviceWithChanges
+        return changedDevice
+      })
+      setProjectDevices(changedDevices);
+  }
+
+  const titleFieldHandler = (e: ChangeEvent<HTMLInputElement>) => {setProjectTitle(e.target.value)}
+
   const displayUsersFields = projectUsers.map((user, idx) => (
     <Box key={idx + user.appuserId}>
       <TextField
@@ -46,16 +67,7 @@ const FormDialog: React.FC<FormDialogProps> = ({
         margin="dense"
         id={`${idx}First name`}
         label="First name"
-        onChange={
-          (e: ChangeEvent<HTMLInputElement>) => {
-          const userWithChanges = { ...user, firstName: e.target.value };
-          const changedUsers = projectUsers.map(changedUser => {
-            if (changedUser.appuserId === userWithChanges.appuserId) return userWithChanges
-            return changedUser
-          })
-          setProjectUsers(changedUsers);
-        }
-      }
+        onChange={(e: ChangeEvent<HTMLInputElement>) => userFieldsHandler(e, user, 'firstName')}
       />
       <TextField
         type="text"
@@ -63,14 +75,7 @@ const FormDialog: React.FC<FormDialogProps> = ({
         margin="dense"
         id={`${idx}Last name`}
         label="Last name"
-        onChange={(e: ChangeEvent<HTMLInputElement>) => {
-          const userWithChanges = { ...user, lastName: e.target.value };
-          const changedUsers = projectUsers.map(changedUser => {
-            if (changedUser.appuserId === userWithChanges.appuserId) return userWithChanges
-            return changedUser
-          })
-          setProjectUsers(changedUsers);
-        }}
+        onChange={(e: ChangeEvent<HTMLInputElement>) => userFieldsHandler(e, user, 'lastName')}
       />
     </Box>
   ));
@@ -83,11 +88,7 @@ const FormDialog: React.FC<FormDialogProps> = ({
         id={`${idx}Serial number`}
         label="Serial number"
         defaultValue={device.serialNumber}
-        onChange={(e: ChangeEvent<HTMLInputElement>) => {
-          const deviceWithChanges = { ...device, serialNumber: e.target.value };
-          projectDevices.splice(idx, 1, deviceWithChanges);
-          setProjectDevices(projectDevices);
-        }}
+        onChange={(e: ChangeEvent<HTMLInputElement>) => devicesFieldsHandler(e, device, 'serialNumber')}
       />
     </Box>
   ));
@@ -105,9 +106,7 @@ const FormDialog: React.FC<FormDialogProps> = ({
           margin="dense"
           id="project name"
           label="Project name"
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            setProjectTitle(e.target.value)
-          }
+          onChange={titleFieldHandler}
           value={projectTitle}
           type="text"
           fullWidth
